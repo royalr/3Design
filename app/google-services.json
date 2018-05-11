@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "968077653248",
+    "firebase_url": "https://design-a3053.firebaseio.com",
+    "project_id": "design-a3053",
+    "storage_bucket": "design-a3053.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968077653248:android:6240a32f42025c8c",
+        "android_client_info": {
+          "package_name": "com.example.roi.a3Design"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "968077653248-5ir476mbhqkumpuupkm6b3j5nmihopr8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7oyQQVQdIPzqM572j35PPluibd34svCo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

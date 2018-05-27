@@ -37,7 +37,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
     public enum TapStatus {
-        SAME_OBJECT, NO_OBJECT, NEW_OBJECT
+        SAME_OBJECT, NO_OBJECT, NEW_OBJECT, VERTICAL_MENU
     }
 
     MyRenderer(Context c) {
@@ -60,8 +60,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Floor floor = wm.createFloor();
 
 
-        Object3D testObj = ObjectManager.loadObject("couchTwoSeats.obj", 1, context);
+        Object3D testObj = ObjectManager.loadObject("sofa1");
+        Object3D testObj3 = ObjectManager.loadObject("flatTV");
+        Object3D testObj2 = ObjectManager.loadObject("corner");
+
+
+
         world.addObject(testObj);
+        world.addObject(testObj2);
+        world.addObject(testObj3);
+
+
         world.addObjects(wm.getWallsObjects());
         world.addObject(floor.getFloor());
         // to see the axis
@@ -105,7 +114,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Log.e("Error", "Something went horribly wrong!");
             return;
         }
-        ObjectManager.panObjectBy(currentObject, getWorldPositionYAxis(x, y));
+        float planeLevel = currentObject.getTranslation().y;
+        ObjectManager.panObjectBy(currentObject, getWorldPositionYAxis(x, y, planeLevel));
+    }
+
+    public void panObjectVerticllyBy(float dy) {
+        currentObject.translate(0, dy / 100, 0);
     }
 
 
@@ -114,6 +128,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         SimpleVector collisionVector = Interact2D.reproject2D3DWS(cam, fb, (int) Math.ceil(x), (int) Math.ceil(y)).normalize();
         Object[] f = world.calcMinDistanceAndObject3D(world.getCamera().getPosition(), collisionVector, 1000);
         tempObjectHolder = (Object3D) f[1];
+
+        if (world.getObjectByName("Vertical Menu") != null && (Object3D) f[1] == world.getObjectByName("Vertical Menu")) {
+            return TapStatus.VERTICAL_MENU;
+        }
 
         if (currentObject == f[1]) {
             if (currentObject == null) {
@@ -139,8 +157,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         switch (status) {
             case NEW_OBJECT:
-                if (world.getObjectByName("Object Menu") == tempObjectHolder) {
+                if (world.getObjectByName("Rotation Menu") == tempObjectHolder) {
                     currentObject.rotateY((float) toRadians(90));
+                    return;
+                } else if (world.getObjectByName("Vertical Menu") == tempObjectHolder) {
+                    return;
+                } else if (world.getObjectByName("Shadow Menu") == tempObjectHolder) {
+                    currentObject = world.getObjectByName("Shadow Menu");
                     return;
                 }
                 ObjectManager.toggleMenu(tempObjectHolder, world, true);
@@ -153,8 +176,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         currentObject = tempObjectHolder;
     }
 
-    private SimpleVector getWorldPositionYAxis(float x, float y) {
-        float Y_PLANE = 0;
+    private SimpleVector getWorldPositionYAxis(float x, float y, float planeLevel) {
+        float Y_PLANE = planeLevel;
 
         SimpleVector dir = Interact2D.reproject2D3DWS(world.getCamera(), fb, (int) Math.ceil(x), (int) Math.ceil(y)).normalize();
         SimpleVector pos = world.getCamera().getPosition();

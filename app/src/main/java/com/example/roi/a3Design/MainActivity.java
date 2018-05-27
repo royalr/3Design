@@ -3,15 +3,20 @@ package com.example.roi.a3Design;
 import android.app.Activity;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 
+import java.io.File;
+import java.io.IOException;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
 
 import static com.example.roi.a3Design.MyRenderer.TapStatus.SAME_OBJECT;
+import static com.example.roi.a3Design.MyRenderer.TapStatus.VERTICAL_MENU;
 
 public class MainActivity extends Activity implements View.OnTouchListener {
 
@@ -25,11 +30,18 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE); // (NEW)
+        getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        ObjectManager.initializeObjects(this);
+
+        setContentView(R.layout.activity_main);
+
+        mGLView = this.findViewById(R.id.glSurface);
 
 
-
-
-        mGLView = new GLSurfaceView(getApplication());
+//        mGLView = new GLSurfaceView(getApplication());
         mGLView.setEGLContextClientVersion(2);
         mGLView.setEGLConfigChooser(new GLSurfaceView.EGLConfigChooser() {
             public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
@@ -45,9 +57,19 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         });
         renderer = new MyRenderer(this);
         mGLView.setRenderer(renderer);
-        setContentView(mGLView);
+//        setContentView(mGLView);
         mGLView.setOnTouchListener(this);
         TextureHandler.initializer(); // load textures
+
+
+        Button btn = findViewById(R.id.btn);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("Menu", "Clicked!");
+            }
+        });
+
 
     }
 
@@ -96,6 +118,8 @@ public class MainActivity extends Activity implements View.OnTouchListener {
                     public void run() {
                         if (status == SAME_OBJECT) {
                             renderer.panObjectBy(lastX, lastY);
+                        } else if (status == VERTICAL_MENU) {
+                            renderer.panObjectVerticllyBy(dy);
                         } else {
                             renderer.panCameraBy(dx, dy);
                         }

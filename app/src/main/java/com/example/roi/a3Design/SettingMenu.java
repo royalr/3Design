@@ -7,6 +7,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -28,6 +35,13 @@ public class SettingMenu extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private ArrayAdapter<String> adapter;
+//    private ArrayList<String> filesList;
+    private final int NUM_OF_SAVES = 5;
+    private ExpandableListAdapter listAdapter;
+    private ExpandableListView expListView;
+    private List<String> listDataHeader;
+    private HashMap<String, List<String>> listDataChild;
 
     public SettingMenu() {
         // Required empty public constructor
@@ -54,6 +68,7 @@ public class SettingMenu extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        prepareListData();
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -107,5 +122,38 @@ public class SettingMenu extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        expListView = view.findViewById(R.id.save);
+
+        // preparing list data
+
+        listAdapter = new ExpandableListAdapter(view.getContext(), listDataHeader, listDataChild);
+
+
+        // setting list adapter
+        expListView.setAdapter(listAdapter);
+    }
+
+    private void prepareListData() {
+        listDataHeader = new ArrayList<>();
+        listDataChild = new HashMap<>();
+        listDataHeader.add("Save");
+        listDataHeader.add("Load");
+
+        List<String> save = new ArrayList<>();
+        List<String> load = new ArrayList<>();
+
+        for (int i = 1; i <= NUM_OF_SAVES; i++) {
+            save.add("Slot "+i);
+            load.add("Slot "+i);
+
+            // edit here titles if slot is taken!
+        }
+        listDataChild.put(listDataHeader.get(0), save); // Header, Child data
+        listDataChild.put(listDataHeader.get(1), load); // Header, Child data
+
     }
 }

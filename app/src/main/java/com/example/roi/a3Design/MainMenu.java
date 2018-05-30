@@ -124,9 +124,7 @@ public class MainMenu extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         expListView = view.findViewById(R.id.lvExp);
-        if (expListView == null) {
-            Log.d("list", "it is null..");
-        }
+
         // preparing list data
 
         listAdapter = new ExpandableListAdapter(view.getContext(), listDataHeader, listDataChild);

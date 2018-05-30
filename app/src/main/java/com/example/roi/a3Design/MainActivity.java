@@ -62,19 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         tabLayout.setupWithViewPager(viewPager);
 
 
-//        //         get the listview
-//        expListView = findViewById(R.id.lvExp);
-//        if (expListView == null) {
-//            Log.d("list", "it is null..");
-//        }
-//        // preparing list data
-//        prepareListData();
-//
-//        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
-//
-//
-//        // setting list adapter
-//        expListView.setAdapter(listAdapter);
+     
 
         mGLView = this.findViewById(R.id.glSurface);
 

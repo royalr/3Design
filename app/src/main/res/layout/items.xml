@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -9,22 +10,35 @@
         style="@style/Widget.AppCompat.Button"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:layout_marginStart="5dp"
         android:text="Undo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <include
-    layout="@layout/exp_list"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    app:layout_constraintTop_toBottomOf="@+id/undo" />
+        layout="@layout/exp_list"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/undo" />
 
     <Button
         android:id="@+id/delete"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:layout_marginStart="5dp"
         android:text="Delete"
         app:layout_constraintStart_toEndOf="@+id/undo"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="5dp"
+        android:text="New"
+        app:layout_constraintStart_toEndOf="@+id/delete"
         app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

@@ -3,22 +3,29 @@ package com.example.roi.a3Design;
 import android.app.Activity;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ExpandableListView;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
 
+
 import static com.example.roi.a3Design.MyRenderer.TapStatus.SAME_OBJECT;
 import static com.example.roi.a3Design.MyRenderer.TapStatus.VERTICAL_MENU;
 
-public class MainActivity extends Activity implements View.OnTouchListener {
+public class MainActivity extends AppCompatActivity implements View.OnTouchListener {
 
     private GLSurfaceView mGLView;
     private MyRenderer renderer = null;
@@ -26,6 +33,10 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     private float lastX, lastY, originX, originY;
     private MyRenderer.TapStatus status;
 
+    private ExpandableListAdapter listAdapter;
+    private ExpandableListView expListView;
+    private List<String> listDataHeader;
+    private HashMap<String, List<String>> listDataChild;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +45,36 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        ObjectManager.initializeObjects(this);
+//        ObjectManager.initializeObjects(this);
 
         setContentView(R.layout.activity_main);
+
+
+
+
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+
+        SimpleFragmentPagerAdapter adapter = new SimpleFragmentPagerAdapter(this, getSupportFragmentManager());
+        viewPager.setAdapter(adapter);
+
+        tabLayout.setupWithViewPager(viewPager);
+
+
+//        //         get the listview
+//        expListView = findViewById(R.id.lvExp);
+//        if (expListView == null) {
+//            Log.d("list", "it is null..");
+//        }
+//        // preparing list data
+//        prepareListData();
+//
+//        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
+//
+//
+//        // setting list adapter
+//        expListView.setAdapter(listAdapter);
 
         mGLView = this.findViewById(R.id.glSurface);
 
@@ -59,18 +97,49 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         mGLView.setRenderer(renderer);
 //        setContentView(mGLView);
         mGLView.setOnTouchListener(this);
-        TextureHandler.initializer(); // load textures
+
+    }
 
 
-        Button btn = findViewById(R.id.btn);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("Menu", "Clicked!");
-            }
-        });
+    private void prepareListData() {
+        listDataHeader = new ArrayList<String>();
+        listDataChild = new HashMap<String, List<String>>();
 
+        // Adding child data
+        listDataHeader.add("Living Room");
+        listDataHeader.add("Bedroom");
+        listDataHeader.add("Bathroom");
+        listDataHeader.add("Kitchen");
 
+        // Adding child data
+        List<String> LivingRoom = new ArrayList<String>();
+        LivingRoom.add("The Shawshank Redemption");
+        LivingRoom.add("The Godfather");
+        LivingRoom.add("The Godfather: Part II");
+        LivingRoom.add("Pulp Fiction");
+        LivingRoom.add("The Good, the Bad and the Ugly");
+        LivingRoom.add("The Dark Knight");
+        LivingRoom.add("12 Angry Men");
+
+        List<String> bedroom = new ArrayList<String>();
+        bedroom.add("The Conjuring");
+        bedroom.add("Despicable Me 2");
+        bedroom.add("Turbo");
+        bedroom.add("Grown Ups 2");
+        bedroom.add("Red 2");
+        bedroom.add("The Wolverine");
+
+        List<String> bathroom = new ArrayList<String>();
+        bathroom.add("2 Guns");
+        bathroom.add("The Smurfs 2");
+        bathroom.add("The Spectacular Now");
+        bathroom.add("The Canyons");
+        bathroom.add("Europa Report");
+
+        listDataChild.put(listDataHeader.get(0), LivingRoom); // Header, Child data
+        listDataChild.put(listDataHeader.get(1), bedroom);
+        listDataChild.put(listDataHeader.get(2), bathroom);
+//        listDataChild.put(listDataHeader.get(3), kitchen);
     }
 
     @Override
@@ -83,6 +152,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     protected void onResume() {
         super.onResume();
         mGLView.onResume();
+
     }
 
     @Override
@@ -118,8 +188,10 @@ public class MainActivity extends Activity implements View.OnTouchListener {
                     public void run() {
                         if (status == SAME_OBJECT) {
                             renderer.panObjectBy(lastX, lastY);
+                            Undo.setRecordMode(false);
                         } else if (status == VERTICAL_MENU) {
-                            renderer.panObjectVerticllyBy(dy);
+                            renderer.panObjectVerticallyBy(dy);
+                            Undo.setRecordMode(false);
                         } else {
                             renderer.panCameraBy(dx, dy);
                         }
@@ -133,9 +205,11 @@ public class MainActivity extends Activity implements View.OnTouchListener {
                         @Override
                         public void run() {
                             renderer.handleObjectMenu(status);
+
                         }
                     });
                 }
+                Undo.setRecordMode(true);
                 return true;
         }
         return false;

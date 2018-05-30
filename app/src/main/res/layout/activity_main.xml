@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    tools:layout_editor_absoluteY="73dp">
 
     <!-- View Container -->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -13,8 +14,8 @@
         android:layout_height="0dp"
         android:layout_gravity="top"
         android:layout_weight=".9"
-        android:screenOrientation="landscape"
         android:orientation="horizontal"
+        android:screenOrientation="landscape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/linearLayout"
@@ -29,7 +30,7 @@
     <!-- Controls Container -->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/linearLayout"
-        android:layout_width="140dp"
+        android:layout_width="170dp"
         android:layout_height="0dp"
         android:layout_gravity="bottom"
         android:layout_weight=".1"
@@ -39,16 +40,12 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0">
 
-        <Button
-            android:id="@+id/btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:gravity="center"
-            android:onClick="clickHandler"
-            android:text="Action" />
 
-
+        <include
+            layout="@layout/menu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

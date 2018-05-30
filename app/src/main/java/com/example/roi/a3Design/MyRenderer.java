@@ -1,8 +1,11 @@
 package com.example.roi.a3Design;
 
+import android.app.Activity;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.threed.jpct.Camera;
 import com.threed.jpct.FrameBuffer;
@@ -34,7 +37,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private Context context;
     private Object3D tempObjectHolder = null;
     private Object3D currentObject = null;
-
+    private boolean deleteFlag = false;
+    private boolean undoFlag = false;
 
     public enum TapStatus {
         SAME_OBJECT, NO_OBJECT, NEW_OBJECT, VERTICAL_MENU
@@ -48,22 +52,38 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
         world = new World();
+
+        TextureHandler.initializer(); // load textures
+        ObjectManager.init(context);
+        Undo.init();
+
         light = new Light(world);
         light.setIntensity(150, 150, 150);
         light.setPosition(new SimpleVector(30, -50, 20));
         Camera cam = world.getCamera();
         cam.moveCamera(Camera.CAMERA_MOVEOUT, camDistant);
-
-
+        final Button delete = ((Activity) context).findViewById(R.id.delete);
+        delete.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                deleteFlag = true;
+            }
+        });
+        final Button undo = ((Activity) context).findViewById(R.id.undo);
+        undo.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                undoFlag = true;
+            }
+        });
         // need to get this information from query:
         wm = new WallManager(new Wall(8.5f), new Wall(4.5f));
         Floor floor = wm.createFloor();
 
 
-        Object3D testObj = ObjectManager.loadObject("sofa1");
+        Object3D testObj = ObjectManager.loadObject("sofa");
+
         Object3D testObj3 = ObjectManager.loadObject("flatTV");
         Object3D testObj2 = ObjectManager.loadObject("corner");
-
+        Log.d("Names", testObj2.getName());
 
 
         world.addObject(testObj);
@@ -78,6 +98,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
+    private void deleteObject() {
+        if (currentObject == null) {
+            return;
+        }
+        Undo.writeLog(currentObject, Undo.UndoAction.DELETE);
+        world.removeObject(currentObject);
+        ObjectManager.toggleMenu(currentObject,world,false);
+        currentObject = null;
+    }
+
     @Override
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
         fb = new FrameBuffer(width, height);
@@ -87,6 +117,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl10) {
+        if (deleteFlag) {
+            deleteFlag = false;
+            deleteObject();
+        }
+        if (undoFlag) {
+            undoFlag = false;
+            Undo.readLog(world);
+
+        }
         fb.clear(new RGBColor(219, 219, 219));
         world.renderScene(fb);
         world.draw(fb);
@@ -114,11 +153,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Log.e("Error", "Something went horribly wrong!");
             return;
         }
+        Undo.writeLog(currentObject, Undo.UndoAction.MOVEMENT);
         float planeLevel = currentObject.getTranslation().y;
         ObjectManager.panObjectBy(currentObject, getWorldPositionYAxis(x, y, planeLevel));
     }
 
-    public void panObjectVerticllyBy(float dy) {
+    public void panObjectVerticallyBy(float dy) {
+        Undo.writeLog(currentObject, Undo.UndoAction.MOVEMENT);
         currentObject.translate(0, dy / 100, 0);
     }
 
@@ -154,16 +195,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void handleObjectMenu(TapStatus status) {
-
         switch (status) {
+            case VERTICAL_MENU:
+                return;
             case NEW_OBJECT:
                 if (world.getObjectByName("Rotation Menu") == tempObjectHolder) {
+                    Undo.writeLog(currentObject, Undo.UndoAction.ROTATION);
                     currentObject.rotateY((float) toRadians(90));
-                    return;
-                } else if (world.getObjectByName("Vertical Menu") == tempObjectHolder) {
-                    return;
-                } else if (world.getObjectByName("Shadow Menu") == tempObjectHolder) {
-                    currentObject = world.getObjectByName("Shadow Menu");
                     return;
                 }
                 ObjectManager.toggleMenu(tempObjectHolder, world, true);

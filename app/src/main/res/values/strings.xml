@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">My Application</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="main">Main</string>
+    <string name="setting">Setting</string>
 </resources>

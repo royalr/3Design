@@ -1,7 +1,9 @@
 package com.example.roi.a3Design;
 
 import com.threed.jpct.Object3D;
+import com.threed.jpct.RGBColor;
 import com.threed.jpct.SimpleVector;
+import com.threed.jpct.Texture;
 import com.threed.jpct.util.ExtendedPrimitives;
 
 /**
@@ -17,6 +19,7 @@ public class Wall {
         length = size;
         wall = ExtendedPrimitives.createBox(new SimpleVector(length, height, depth));
         wall.setTexture("wall");
+        wall.setName("wall");
     }
 
     Object3D getWall() {

@@ -45,29 +45,16 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-//        ObjectManager.initializeObjects(this);
-
         setContentView(R.layout.activity_main);
 
-
-
-
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        TabLayout tabLayout = findViewById(R.id.sliding_tabs);
+        ViewPager viewPager = findViewById(R.id.viewpager);
 
         SimpleFragmentPagerAdapter adapter = new SimpleFragmentPagerAdapter(this, getSupportFragmentManager());
         viewPager.setAdapter(adapter);
-
         tabLayout.setupWithViewPager(viewPager);
 
-
-     
-
         mGLView = this.findViewById(R.id.glSurface);
-
-
-//        mGLView = new GLSurfaceView(getApplication());
         mGLView.setEGLContextClientVersion(2);
         mGLView.setEGLConfigChooser(new GLSurfaceView.EGLConfigChooser() {
             public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
@@ -83,52 +70,15 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         });
         renderer = new MyRenderer(this);
         mGLView.setRenderer(renderer);
-//        setContentView(mGLView);
         mGLView.setOnTouchListener(this);
 
+        // should be initialized in the beginnig query
+//        ProjectStatesManager.init(true, -1);
+        ProjectStatesManager.init(true);
+        ProjectStatesManager.regContext(this);
+
     }
 
-
-    private void prepareListData() {
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
-
-        // Adding child data
-        listDataHeader.add("Living Room");
-        listDataHeader.add("Bedroom");
-        listDataHeader.add("Bathroom");
-        listDataHeader.add("Kitchen");
-
-        // Adding child data
-        List<String> LivingRoom = new ArrayList<String>();
-        LivingRoom.add("The Shawshank Redemption");
-        LivingRoom.add("The Godfather");
-        LivingRoom.add("The Godfather: Part II");
-        LivingRoom.add("Pulp Fiction");
-        LivingRoom.add("The Good, the Bad and the Ugly");
-        LivingRoom.add("The Dark Knight");
-        LivingRoom.add("12 Angry Men");
-
-        List<String> bedroom = new ArrayList<String>();
-        bedroom.add("The Conjuring");
-        bedroom.add("Despicable Me 2");
-        bedroom.add("Turbo");
-        bedroom.add("Grown Ups 2");
-        bedroom.add("Red 2");
-        bedroom.add("The Wolverine");
-
-        List<String> bathroom = new ArrayList<String>();
-        bathroom.add("2 Guns");
-        bathroom.add("The Smurfs 2");
-        bathroom.add("The Spectacular Now");
-        bathroom.add("The Canyons");
-        bathroom.add("Europa Report");
-
-        listDataChild.put(listDataHeader.get(0), LivingRoom); // Header, Child data
-        listDataChild.put(listDataHeader.get(1), bedroom);
-        listDataChild.put(listDataHeader.get(2), bathroom);
-//        listDataChild.put(listDataHeader.get(3), kitchen);
-    }
 
     @Override
     protected void onPause() {

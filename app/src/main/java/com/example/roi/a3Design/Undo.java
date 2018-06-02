@@ -60,7 +60,7 @@ public class Undo {
                 w.getObjectByName(logDetails.objectName).translate(logDetails.objectPosition);
                 break;
             case ROTATION:
-                w.getObjectByName(logDetails.objectName).rotateY((float) toRadians(-90));
+                ObjectManager.rotateObj(w.getObjectByName(logDetails.objectName), false);
                 break;
             case ADD:
                 w.removeObject(w.getObjectByName(logDetails.objectName));
@@ -70,6 +70,12 @@ public class Undo {
                 obj.setName(logDetails.objectName);
                 obj.translate(logDetails.objectPosition);
                 w.addObject(obj);
+                Integer rotations = ObjectManager.getRotation(logDetails.objectName);
+                if (rotations != null) {
+                    for (int i = 0; i < rotations; i++) {
+                        w.getObjectByName(logDetails.objectName).rotateY((float) toRadians(90));
+                    }
+                }
                 break;
         }
     }

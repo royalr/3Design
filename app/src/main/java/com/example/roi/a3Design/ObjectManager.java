@@ -20,6 +20,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.threed.jpct.Object3D.NO_OBJECT;
 import static com.threed.jpct.Object3D.OBJ_VISIBLE;
@@ -29,6 +31,7 @@ import static java.lang.Math.toRadians;
 public class ObjectManager {
     static Context context;
     static int id;
+    private static Map<String, Integer> rotationsRecords = new HashMap<>();
 //    private static ArrayList<Object3D> allObjects = new ArrayList<>();
 
     // getNewObject(String query)
@@ -86,7 +89,7 @@ public class ObjectManager {
         AssetManager assetManager = context.getAssets();
         try {
             //InputStream mtl = assetManager.open("mtl/***.mtl");
-            InputStream obj = assetManager.open("obj/" + fileName+".obj");
+            InputStream obj = assetManager.open("obj/" + fileName + ".obj");
             Object3D[] model = Loader.loadOBJ(obj, null, 0.012f);
             Object3D object = new Object3D(0);
             Object3D temp = null;
@@ -105,7 +108,7 @@ public class ObjectManager {
             }
 //            object.translate(0, -f[3], -5);
             object.setCollisionMode(Object3D.COLLISION_CHECK_OTHERS);
-            String objectName = fileName + Integer.toString(id) ;
+            String objectName = fileName + Integer.toString(id);
             id++;
             object.setName(objectName);
 
@@ -181,5 +184,29 @@ public class ObjectManager {
         position.z -= obj.getCenter().z;
         obj.translate(position);
 
+    }
+
+    public static void rotateObj(Object3D obj,  boolean direction){
+        if (direction) {
+            obj.rotateY((float) toRadians(90));
+        } else {
+            obj.rotateY((float) toRadians(-90));
+        }
+        regRotation(obj.getName(), direction);
+    }
+
+    private static void regRotation(String objName, boolean direction) {
+        //direction = true - cw | false - ccw
+        Integer state = 0;
+        if (rotationsRecords.containsKey(objName)) {
+            state = rotationsRecords.get(objName);
+        }
+        rotationsRecords.put(objName, direction ? state + 1 % 4 : state - 1 % 4);
+    }
+
+
+
+    public static Integer getRotation(String objName) {
+        return rotationsRecords.get(objName);
     }
 }

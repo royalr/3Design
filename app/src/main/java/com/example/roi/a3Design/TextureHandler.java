@@ -13,7 +13,7 @@ public class TextureHandler {
 
     }
 
-    static void initializer () {
+    static void init() {
         Texture wall, floor;
 
         wall = new Texture(64, 64, RGBColor.WHITE);

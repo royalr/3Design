@@ -15,10 +15,11 @@ public class Floor {
     Floor(SimpleVector dimentions) {
         floor = ExtendedPrimitives.createBox(dimentions);
         floor.setTexture("floor");
+        floor.setName("floor");
         floor.rotateX((float) Math.toRadians(90));
     }
 
-    Object3D getFloor() {
+    Object3D getFloorAsObj3D() {
         return floor;
     }
 }

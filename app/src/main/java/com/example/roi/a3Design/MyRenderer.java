@@ -1,7 +1,9 @@
 package com.example.roi.a3Design;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.View;
@@ -17,11 +19,12 @@ import com.threed.jpct.RGBColor;
 import com.threed.jpct.SimpleVector;
 import com.threed.jpct.World;
 
+import java.util.Enumeration;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import static com.threed.jpct.Interact2D.reproject2D3DWS;
-import static java.lang.Math.toRadians;
 
 /**
  * Created by Roi on 03/04/2018.
@@ -29,8 +32,7 @@ import static java.lang.Math.toRadians;
 
 public class MyRenderer implements GLSurfaceView.Renderer {
     private FrameBuffer fb = null;
-    private World world = null;
-    private Light light = null;
+    private static World world = null;
     private WallManager wm = null;
     private float camDistant = 15;
     private final float minHeight = -4;
@@ -39,6 +41,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private Object3D currentObject = null;
     private boolean deleteFlag = false;
     private boolean undoFlag = false;
+
 
     public enum TapStatus {
         SAME_OBJECT, NO_OBJECT, NEW_OBJECT, VERTICAL_MENU
@@ -51,17 +54,27 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
-        world = new World();
+        TextureHandler.init(); // load textures
 
-        TextureHandler.initializer(); // load textures
+        // re-init when load
         ObjectManager.init(context);
         Undo.init();
 
-        light = new Light(world);
-        light.setIntensity(150, 150, 150);
-        light.setPosition(new SimpleVector(30, -50, 20));
-        Camera cam = world.getCamera();
-        cam.moveCamera(Camera.CAMERA_MOVEOUT, camDistant);
+        // to see the axis
+        // markAxis();
+
+        // should be set on beginning query:
+        WallManager.registerWalls(new Wall(8.5f), new Wall(4.5f));
+
+        if (ProjectStatesManager.getStatus()) {
+            // get world with default values
+            world = ProjectStatesManager.getNewWorld();
+        } else {
+//             get world with values saved in a file
+            world = ProjectStatesManager.loadState(-1);
+        }
+
+        // delete & undo buttons handlers
         final Button delete = ((Activity) context).findViewById(R.id.delete);
         delete.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -74,28 +87,34 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 undoFlag = true;
             }
         });
-        // need to get this information from query:
-        wm = new WallManager(new Wall(8.5f), new Wall(4.5f));
-        Floor floor = wm.createFloor();
+        final Button test = ((Activity) context).findViewById(R.id.newProj);
+        test.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new AlertDialog.Builder(context)
+                        .setTitle("Caution!")
+                        .setMessage("Are you sure you want to start a new project? All unsaved changes will be lost.")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                // send user back to wall query
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, null).show();
+            }
+        });
 
 
+// =============================== [Tests Area] ====================================================
         Object3D testObj = ObjectManager.loadObject("sofa");
-
         Object3D testObj3 = ObjectManager.loadObject("flatTV");
         Object3D testObj2 = ObjectManager.loadObject("corner");
         Log.d("Names", testObj2.getName());
-
 
         world.addObject(testObj);
         world.addObject(testObj2);
         world.addObject(testObj3);
 
 
-        world.addObjects(wm.getWallsObjects());
-        world.addObject(floor.getFloor());
-        // to see the axis
-        markAxis();
-
+// =================================================================================================
     }
 
     private void deleteObject() {
@@ -104,15 +123,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
         Undo.writeLog(currentObject, Undo.UndoAction.DELETE);
         world.removeObject(currentObject);
-        ObjectManager.toggleMenu(currentObject,world,false);
+        ObjectManager.toggleMenu(currentObject, world, false);
         currentObject = null;
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
         fb = new FrameBuffer(width, height);
-        //Log.d("view", "width: "+width+" height: "+height);
-
     }
 
     @Override
@@ -124,7 +141,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         if (undoFlag) {
             undoFlag = false;
             Undo.readLog(world);
-
         }
         fb.clear(new RGBColor(219, 219, 219));
         world.renderScene(fb);
@@ -201,7 +217,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             case NEW_OBJECT:
                 if (world.getObjectByName("Rotation Menu") == tempObjectHolder) {
                     Undo.writeLog(currentObject, Undo.UndoAction.ROTATION);
-                    currentObject.rotateY((float) toRadians(90));
+                    ObjectManager.rotateObj(currentObject, true);
                     return;
                 }
                 ObjectManager.toggleMenu(tempObjectHolder, world, true);
@@ -227,6 +243,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         return new SimpleVector(xn, Y_PLANE, zn);
 
+    }
+
+    public static void saveProject(int slot) {
+        ProjectStatesManager.saveState(world, slot);
+    }
+
+    public static void loadProject(int slot) {
+        world = ProjectStatesManager.loadState(slot);
     }
 
     private void markAxis() {

@@ -1,19 +1,26 @@
 package com.example.roi.a3Design;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.example.roi.a3Design.ObjectManager.context;
 
 
 /**
@@ -35,8 +42,6 @@ public class SettingMenu extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-    private ArrayAdapter<String> adapter;
-//    private ArrayList<String> filesList;
     private final int NUM_OF_SAVES = 5;
     private ExpandableListAdapter listAdapter;
     private ExpandableListView expListView;
@@ -127,14 +132,60 @@ public class SettingMenu extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         expListView = view.findViewById(R.id.save);
-
         // preparing list data
-
         listAdapter = new ExpandableListAdapter(view.getContext(), listDataHeader, listDataChild);
-
-
         // setting list adapter
         expListView.setAdapter(listAdapter);
+
+        // Listview on child click listener
+        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosition, long id) {
+
+                String title = listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition);
+                Log.d("list", "" + groupPosition);
+                final int child = childPosition;
+                switch (groupPosition) {
+                    case 0: // save
+                        if (title.equals("Empty Slot " + (childPosition + 1))) {
+                            // this slot is empty
+                            listDataChild.get(listDataHeader.get(0)).set(child, "Saved Data " + (child + 1));
+                            listDataChild.get(listDataHeader.get(1)).set(child, "Saved Data " + (child + 1));
+                            MyRenderer.saveProject(childPosition);
+                        } else {
+                            // confirm action
+                            new AlertDialog.Builder(getActivity())
+                                    .setTitle("Caution!")
+                                    .setMessage("Slot already contains saved data. Do you want to override it?")
+                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            MyRenderer.saveProject(child);
+                                        }
+                                    })
+                                    .setNegativeButton(android.R.string.no, null).show();
+                        }
+                        break;
+                    case 1: // load
+                        if (!title.equals("Empty Slot " + (childPosition + 1))) {
+                            new AlertDialog.Builder(getActivity())
+                                    .setTitle("Caution!")
+                                    .setMessage("Are you sure you want to load? All unsaved changes will be lost.")
+                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            MyRenderer.loadProject(child);
+                                        }
+                                    })
+                                    .setNegativeButton(android.R.string.no, null).show();
+                        }
+
+                        break;
+                }
+
+                return false;
+            }
+        });
     }
 
     private void prepareListData() {
@@ -146,9 +197,16 @@ public class SettingMenu extends Fragment {
         List<String> save = new ArrayList<>();
         List<String> load = new ArrayList<>();
 
-        for (int i = 1; i <= NUM_OF_SAVES; i++) {
-            save.add("Slot "+i);
-            load.add("Slot "+i);
+        for (int i = 0; i < NUM_OF_SAVES; i++) {
+
+            File file = getActivity().getFileStreamPath("save" + i);
+            if (file == null || !file.exists()) {
+                save.add("Empty Slot " + (i+1));
+                load.add("Empty Slot " + (i+1));
+            } else {
+                save.add("Saved Data " + (i+1));
+                load.add("Saved Data " + (i+1));
+            }
 
             // edit here titles if slot is taken!
         }

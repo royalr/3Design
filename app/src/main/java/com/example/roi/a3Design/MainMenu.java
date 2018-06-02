@@ -1,7 +1,7 @@
 package com.example.roi.a3Design;
 
-import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.List;
  * Activities that contain this fragment must implement the
  * {@link MainMenu.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link MainMenu#newInstance} factory method to
+ * Use the {@link MainMenu newInstance} factory method to
  * create an instance of this fragment.
  */
 public class MainMenu extends Fragment {
@@ -40,6 +41,9 @@ public class MainMenu extends Fragment {
     private ExpandableListView expListView;
     private List<String> listDataHeader;
     private HashMap<String, List<String>> listDataChild;
+    private HashMap<String, List<Integer>> listDataChildImages;
+    private static View chosenChild = null;
+
     public MainMenu() {
         // Required empty public constructor
     }
@@ -121,57 +125,99 @@ public class MainMenu extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         expListView = view.findViewById(R.id.lvExp);
-
-        // preparing list data
-
-        listAdapter = new ExpandableListAdapter(view.getContext(), listDataHeader, listDataChild);
-
-
-        // setting list adapter
+        listAdapter = new ExpandableListAdapter(view.getContext(), listDataHeader, listDataChild, listDataChildImages);
         expListView.setAdapter(listAdapter);
+
+        // Listview on child click listener
+        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosition, long id) {
+
+                // choose the child
+                chosenChild = v;
+                v.setBackgroundColor(Color.rgb(214, 214, 214));
+
+                int imageId = listDataChildImages.get(listDataHeader.get(groupPosition)).get(childPosition);
+                String imageName = getResources().getResourceEntryName(imageId);
+
+                ObjectManager.setObjToBeCreatedName(imageName);
+                ObjectManager.setObjToBeCreated(true);
+
+                return false;
+            }
+        });
+    }
+
+    public static void unchooseChild() {
+        if(chosenChild != null)
+        {
+            chosenChild.setBackgroundColor(Color.TRANSPARENT);
+            chosenChild.invalidate();
+        }
     }
 
     private void prepareListData() {
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
+        listDataHeader = new ArrayList<>();
+        listDataChild = new HashMap<>();
+        listDataChildImages = new HashMap<>();
 
-        // Adding child data
-        listDataHeader.add("Living Room");
-        listDataHeader.add("Bedroom");
-        listDataHeader.add("Bathroom");
-        listDataHeader.add("Kitchen");
+        String category = "livingroom_";
+        String categoryName = "Living Room";
+        addChildDataForCategory(category, categoryName, listDataHeader, listDataChildImages, listDataChild);
 
-        // Adding child data
-        List<String> LivingRoom = new ArrayList<String>();
-        LivingRoom.add("The Shawshank Redemption");
-        LivingRoom.add("The Godfather");
-        LivingRoom.add("The Godfather: Part II");
-        LivingRoom.add("Pulp Fiction");
-        LivingRoom.add("The Good, the Bad and the Ugly");
-        LivingRoom.add("The Dark Knight");
-        LivingRoom.add("12 Angry Men");
+        category = "bathroom_";
+        categoryName = "Bathroom";
+        addChildDataForCategory(category, categoryName, listDataHeader, listDataChildImages, listDataChild);
 
-        List<String> bedroom = new ArrayList<String>();
-        bedroom.add("The Conjuring");
-        bedroom.add("Despicable Me 2");
-        bedroom.add("Turbo");
-        bedroom.add("Grown Ups 2");
-        bedroom.add("Red 2");
-        bedroom.add("The Wolverine");
+        category = "bedroom_";
+        categoryName = "Bedroom";
+        addChildDataForCategory(category, categoryName, listDataHeader, listDataChildImages, listDataChild);category = "bedroom_";
 
-        List<String> bathroom = new ArrayList<String>();
-        bathroom.add("2 Guns");
-        bathroom.add("The Smurfs 2");
-        bathroom.add("The Spectacular Now");
-        bathroom.add("The Canyons");
-        bathroom.add("Europa Report");
+        category = "general_";
+        categoryName = "General";
+        addChildDataForCategory(category, categoryName, listDataHeader, listDataChildImages, listDataChild);
+    }
 
-        listDataChild.put(listDataHeader.get(0), LivingRoom); // Header, Child data
-        listDataChild.put(listDataHeader.get(1), bedroom);
-        listDataChild.put(listDataHeader.get(2), bathroom);
-//        listDataChild.put(listDataHeader.get(3), kitchen);
+    private void addChildDataForCategory(String category, String categoryName, List<String> listDataHeader, HashMap<String, List<Integer>> listDataChildImages, HashMap<String, List<String>> listDataChild) {
+        listDataHeader.add(categoryName);
+        List<String> categoryImagesNames = getListImagesByCategory(category);
+        List<String> categoryList = new ArrayList<>();
+        List<Integer> categoryListImages = new ArrayList<>();
+
+        for (String imageName : categoryImagesNames) {
+            categoryList.add(imageName.replace(category, "").replace("_"," "));
+            try {
+                categoryListImages.add(R.drawable.class.getField(imageName).getInt(null));
+            } catch (Exception e) {
+                Log.e("Drawables", "Failed to retrieve id of drawable - " + imageName, e);
+            }
+        }
+
+        listDataChildImages.put(categoryName, categoryListImages);
+        listDataChild.put(categoryName, categoryList);
+    }
+
+    private List<String> getListImagesByCategory(String category) {
+        List<String> listImages = new ArrayList<>();
+
+        Field[] ID_Fields = R.drawable.class.getFields();
+        for (Field f : ID_Fields) {
+            try {
+                String imageName = f.getName();
+                if (imageName.startsWith(category)) {
+                    listImages.add(imageName);
+                }
+            } catch (IllegalArgumentException e) {
+                Log.e("Drawables", "Failed to retrieve an image name", e);
+            }
+        }
+
+        return listImages;
     }
 }

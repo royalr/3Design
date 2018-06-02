@@ -12,4 +12,11 @@
         android:paddingStart="?android:attr/expandableListPreferredChildPaddingLeft"
         android:paddingTop="5dp" />
 
+    <ImageView
+        android:id="@+id/IV_child"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:contentDescription="child image"
+        android:paddingStart="?android:attr/expandableListPreferredChildPaddingLeft"
+        android:scaleType="fitCenter" />
 </LinearLayout>

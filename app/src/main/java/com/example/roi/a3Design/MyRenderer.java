@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
@@ -101,20 +102,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         .setNegativeButton(android.R.string.no, null).show();
             }
         });
+    }
+
+    public void handleCreatingNewObject(MotionEvent motionEvent) {//, MainMenu fragment) {
+        if (ObjectManager.isObjToBeCreated()) {
+            Object3D obj = ObjectManager.loadObject(ObjectManager.getObjToBeCreatedName());
+            world.addObject(obj);
+//            float planeLevel = currentObject.getTranslation().y;
+//            ObjectManager.panObjectBy(obj, getWorldPositionYAxis(motionEvent.getX(), motionEvent.getY(), 0));
+
+            ObjectManager.setObjToBeCreated(false);
+//            fragment.
 
 
-// =============================== [Tests Area] ====================================================
-        Object3D testObj = ObjectManager.loadObject("sofa");
-        Object3D testObj3 = ObjectManager.loadObject("flatTV");
-        Object3D testObj2 = ObjectManager.loadObject("corner");
-        Log.d("Names", testObj2.getName());
-
-        world.addObject(testObj);
-        world.addObject(testObj2);
-        world.addObject(testObj3);
-
-
-// =================================================================================================
+//            MainMenu.unchooseChild();
+        }
     }
 
     private void deleteObject() {

@@ -133,7 +133,7 @@ public class SettingMenu extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         expListView = view.findViewById(R.id.save);
         // preparing list data
-        listAdapter = new ExpandableListAdapter(view.getContext(), listDataHeader, listDataChild);
+        listAdapter = new ExpandableListAdapter(view.getContext(), listDataHeader, listDataChild, null);
         // setting list adapter
         expListView.setAdapter(listAdapter);
 

@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
+    public boolean onTouch(View view, final MotionEvent motionEvent) {
 
         switch (motionEvent.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -143,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                         @Override
                         public void run() {
                             renderer.handleObjectMenu(status);
+                            renderer.handleCreatingNewObject(motionEvent);
 
                         }
                     });

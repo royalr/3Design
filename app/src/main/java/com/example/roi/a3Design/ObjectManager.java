@@ -32,57 +32,13 @@ public class ObjectManager {
     static Context context;
     static int id;
     private static Map<String, Integer> rotationsRecords = new HashMap<>();
-//    private static ArrayList<Object3D> allObjects = new ArrayList<>();
-
-    // getNewObject(String query)
-    // deleteObject(obj id)?
+    private static String objToBeCreatedName;
+    private static boolean objToBeCreated = false;
 
     public static void init(Context c) {
         context = c;
         id = 0;
     }
-
-//    public static void initializeObjects(Context c) {
-////        InputStream objectPath = c.getResources().openRawResource(R.raw);
-//        AssetManager assetManager = c.getAssets();
-//        String[] list;
-//        try {
-//            list = c.getAssets().list("obj");
-//            for (int i = 0; i < list.length; i++) {
-//                //InputStream mtl = assetManager.open("mtl/***.mtl");
-//                InputStream obj = assetManager.open("obj/" + list[i]);
-//                Object3D[] model = Loader.loadOBJ(obj, null, 0.012f);
-//                Object3D object = new Object3D(0);
-//                Object3D temp = null;
-//                for (int j = 0; j < model.length; j++) {
-//                    temp = model[j];
-//                    temp.setCenter(SimpleVector.ORIGIN);
-//                    temp.rotateZ((float) (-1 * Math.PI));
-//                    temp.rotateMesh();
-//                    temp.setRotationMatrix(new Matrix());
-//                    object = Object3D.mergeObjects(object, temp);
-//                    object.build();
-//                }
-//                float[] f = object.getMesh().getBoundingBox();
-//                if (f[3]-f[2]<0.1) {
-//                    Log.i("Object Manager", "I'm a tiny object! Do something about me!");
-//                }
-//                object.translate(0, -f[3], -5);
-//                //object.setCenter(object.getOrigin());
-//                object.setCollisionMode(Object3D.COLLISION_CHECK_OTHERS);
-//                String objectName = list[i].substring(0, list[i].length() - 4);
-//                object.setName(objectName);
-//                allObjects.add(object);
-//                Log.d("Object Manager", objectName + " has been added successfully!");
-//
-//            }
-//
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
 
     public static Object3D loadObject(String fileName) {
 
@@ -121,7 +77,7 @@ public class ObjectManager {
     }
 
 
-    static void toggleMenu(Object3D obj, World world, boolean status) {
+    public static void toggleMenu(Object3D obj, World world, boolean status) {
         if (obj == null) {
             return;
         }
@@ -204,9 +160,23 @@ public class ObjectManager {
         rotationsRecords.put(objName, direction ? state + 1 % 4 : state - 1 % 4);
     }
 
-
-
     public static Integer getRotation(String objName) {
         return rotationsRecords.get(objName);
+    }
+
+    public static boolean isObjToBeCreated() {
+        return objToBeCreated;
+    }
+
+    public static void setObjToBeCreated(boolean objToBeCreated) {
+        ObjectManager.objToBeCreated = objToBeCreated;
+    }
+
+    public static String getObjToBeCreatedName() {
+        return objToBeCreatedName;
+    }
+
+    public static void setObjToBeCreatedName(String objNamet) {
+        objToBeCreatedName = objNamet;
     }
 }

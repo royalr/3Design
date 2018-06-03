@@ -39,7 +39,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float minHeight = -4;
     private Context context;
     private Object3D tempObjectHolder = null;
-    private Object3D currentObject = null;
+    private static Object3D currentObject = null;
     private boolean deleteFlag = false;
     private boolean undoFlag = false;
 
@@ -104,28 +104,32 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         });
     }
 
-    public void handleCreatingNewObject(MotionEvent motionEvent) {//, MainMenu fragment) {
+    public void handleCreatingNewObject(float posX, float posY) {
         if (ObjectManager.isObjToBeCreated()) {
             Object3D obj = ObjectManager.loadObject(ObjectManager.getObjToBeCreatedName());
+            ObjectManager.panObjectBy(obj, getWorldPositionYAxis(posX, posY, 0));
             world.addObject(obj);
-//            float planeLevel = currentObject.getTranslation().y;
-//            ObjectManager.panObjectBy(obj, getWorldPositionYAxis(motionEvent.getX(), motionEvent.getY(), 0));
-
-            ObjectManager.setObjToBeCreated(false);
-//            fragment.
-
-
-//            MainMenu.unchooseChild();
+            currentObject = obj;
+            ObjectManager.toggleMenu(obj, world, true);
+            Undo.writeLog(obj, Undo.UndoAction.ADD);
+            MainMenu.unchooseChild();
         }
+    }
+
+    public static String getCurrentObjectName() {
+        return currentObject == null ? "" : currentObject.getName();
     }
 
     private void deleteObject() {
         if (currentObject == null) {
             return;
         }
+        if (!world.containsObject(currentObject)) {
+            return;
+        }
         Undo.writeLog(currentObject, Undo.UndoAction.DELETE);
-        world.removeObject(currentObject);
         ObjectManager.toggleMenu(currentObject, world, false);
+        world.removeObject(currentObject);
         currentObject = null;
     }
 

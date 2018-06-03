@@ -81,10 +81,12 @@ public class ObjectManager {
         if (obj == null) {
             return;
         }
+        if (!world.containsObject(obj)) {
+            return;
+        }
         if (status) {
             obj.setAdditionalColor(RGBColor.BLUE);
             float[] f = obj.getMesh().getBoundingBox();
-
 
             Object3D rotationBtn = Primitives.getSphere(0.2f);
             rotationBtn.setAdditionalColor(RGBColor.RED);
@@ -124,8 +126,12 @@ public class ObjectManager {
 
         } else {
             obj.clearAdditionalColor();
-            world.removeObject(world.getObjectByName("Rotation Menu"));
-            world.removeObject(world.getObjectByName("Vertical Menu"));
+            if (world.containsObject(world.getObjectByName("Rotation Menu"))) {
+                world.removeObject(world.getObjectByName("Rotation Menu"));
+            }
+            if (world.containsObject(world.getObjectByName("Vertical Menu"))) {
+                world.removeObject(world.getObjectByName("Vertical Menu"));
+            }
             //world.removeObject(world.getObjectByName("Shadow Menu"));
             // obj.removeChild();
         }
@@ -142,7 +148,7 @@ public class ObjectManager {
 
     }
 
-    public static void rotateObj(Object3D obj,  boolean direction){
+    public static void rotateObj(Object3D obj, boolean direction) {
         if (direction) {
             obj.rotateY((float) toRadians(90));
         } else {

@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/listChild"
     android:layout_width="170dp"
-    android:layout_height="55dip"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/lblListItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="5dp"
-        android:paddingStart="?android:attr/expandableListPreferredChildPaddingLeft"
-        android:paddingTop="5dp" />
+        android:paddingBottom="4dp"
+        android:paddingTop="4dp"
+        android:textAlignment="center" />
 
     <ImageView
         android:id="@+id/IV_child"
         android:layout_width="match_parent"
-        android:layout_height="90dp"
+        android:layout_height="wrap_content"
         android:contentDescription="child image"
-        android:paddingStart="?android:attr/expandableListPreferredChildPaddingLeft"
+        android:maxHeight="40dp"
         android:scaleType="fitCenter" />
 </LinearLayout>

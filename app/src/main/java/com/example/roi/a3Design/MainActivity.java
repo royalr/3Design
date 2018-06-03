@@ -22,6 +22,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
 
 
+import static com.example.roi.a3Design.MyRenderer.TapStatus.NO_OBJECT;
 import static com.example.roi.a3Design.MyRenderer.TapStatus.SAME_OBJECT;
 import static com.example.roi.a3Design.MyRenderer.TapStatus.VERTICAL_MENU;
 
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
     @Override
-    public boolean onTouch(View view, final MotionEvent motionEvent) {
+    public boolean onTouch(View view, MotionEvent motionEvent) {
 
         switch (motionEvent.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -143,8 +144,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                         @Override
                         public void run() {
                             renderer.handleObjectMenu(status);
-                            renderer.handleCreatingNewObject(motionEvent);
-
+                            if (status == NO_OBJECT) {
+                                renderer.handleCreatingNewObject(originX, originY);
+                            }
                         }
                     });
                 }

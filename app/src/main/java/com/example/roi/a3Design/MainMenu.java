@@ -139,6 +139,13 @@ public class MainMenu extends Fragment {
             public boolean onChildClick(ExpandableListView parent, View v,
                                         int groupPosition, int childPosition, long id) {
 
+
+                if (chosenChild == v) {
+                    unchooseChild();
+                    return false;
+                }
+                unchooseChild();
+
                 // choose the child
                 chosenChild = v;
                 v.setBackgroundColor(Color.rgb(214, 214, 214));
@@ -152,13 +159,19 @@ public class MainMenu extends Fragment {
                 return false;
             }
         });
+        expListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+            @Override
+            public void onGroupCollapse(int i) {
+                unchooseChild();
+            }
+        });
     }
 
     public static void unchooseChild() {
-        if(chosenChild != null)
-        {
+        if (chosenChild != null) {
+            ObjectManager.setObjToBeCreated(false);
             chosenChild.setBackgroundColor(Color.TRANSPARENT);
-            chosenChild.invalidate();
+            chosenChild = null;
         }
     }
 
@@ -177,7 +190,8 @@ public class MainMenu extends Fragment {
 
         category = "bedroom_";
         categoryName = "Bedroom";
-        addChildDataForCategory(category, categoryName, listDataHeader, listDataChildImages, listDataChild);category = "bedroom_";
+        addChildDataForCategory(category, categoryName, listDataHeader, listDataChildImages, listDataChild);
+        category = "bedroom_";
 
         category = "general_";
         categoryName = "General";
@@ -191,7 +205,7 @@ public class MainMenu extends Fragment {
         List<Integer> categoryListImages = new ArrayList<>();
 
         for (String imageName : categoryImagesNames) {
-            categoryList.add(imageName.replace(category, "").replace("_"," "));
+            categoryList.add(imageName.replace(category, "").replace("_", " "));
             try {
                 categoryListImages.add(R.drawable.class.getField(imageName).getInt(null));
             } catch (Exception e) {

@@ -63,6 +63,9 @@ public class Undo {
                 ObjectManager.rotateObj(w.getObjectByName(logDetails.objectName), false);
                 break;
             case ADD:
+                if(logDetails.objectName.equals(MyRenderer.getCurrentObjectName())) {
+                    ObjectManager.toggleMenu(w.getObjectByName(logDetails.objectName), w, false);
+                }
                 w.removeObject(w.getObjectByName(logDetails.objectName));
                 break;
             case DELETE:

@@ -14,7 +14,7 @@ public class Floor {
 
     Floor(SimpleVector dimentions) {
         floor = ExtendedPrimitives.createBox(dimentions);
-        floor.setTexture("floor");
+//        floor.setTexture("floor");
         floor.setName("floor");
         floor.rotateX((float) Math.toRadians(90));
     }

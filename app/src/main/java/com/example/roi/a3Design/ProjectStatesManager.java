@@ -1,5 +1,6 @@
 package com.example.roi.a3Design;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
@@ -55,10 +56,18 @@ public class ProjectStatesManager {
             fis.close();
             data = new String(buffer);
             Log.d("file", new String(buffer));
-            Toast.makeText(context, "Loaded", Toast.LENGTH_SHORT).show();
+            ((Activity)context).runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(context, "Loaded", Toast.LENGTH_SHORT).show();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+            ((Activity)context).runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+                }
+            });
             return null;
 
         }
@@ -136,10 +145,18 @@ public class ProjectStatesManager {
             FileOutputStream fos = context.openFileOutput("save" + id, Context.MODE_PRIVATE);
             fos.write(sb.toString().getBytes());
             fos.close();
-            Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show();
+            ((Activity)context).runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+            ((Activity)context).runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 

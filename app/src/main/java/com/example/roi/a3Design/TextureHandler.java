@@ -16,11 +16,11 @@ public class TextureHandler {
     static void init() {
         Texture wall, floor;
 
-        wall = new Texture(64, 64, RGBColor.WHITE);
-        floor = new Texture(64, 64, new RGBColor(250, 250, 250));
+//        wall = new Texture(64, 64, RGBColor.WHITE);
+//        floor = new Texture(64, 64, new RGBColor(250, 250, 250));
 
-        TextureManager.getInstance().addTexture("wall", wall);
-        TextureManager.getInstance().addTexture("floor", floor);
+//        TextureManager.getInstance().addTexture("wall", wall);
+//        TextureManager.getInstance().addTexture("floor", floor);
 
 
 

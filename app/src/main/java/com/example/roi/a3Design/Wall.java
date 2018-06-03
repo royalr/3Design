@@ -18,7 +18,7 @@ public class Wall {
     Wall(float size) {
         length = size;
         wall = ExtendedPrimitives.createBox(new SimpleVector(length, height, depth));
-        wall.setTexture("wall");
+//        wall.setTexture("wall");
         wall.setName("wall");
     }
 

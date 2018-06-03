@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.threed.jpct.Camera;
 import com.threed.jpct.FrameBuffer;
@@ -64,14 +67,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // to see the axis
         // markAxis();
 
-        // should be set on beginning query:
-        WallManager.registerWalls(new Wall(8.5f), new Wall(4.5f));
-
         if (ProjectStatesManager.getStatus()) {
             // get world with default values
             world = ProjectStatesManager.getNewWorld();
         } else {
 //             get world with values saved in a file
+            ObjectManager.init(context);
+            Undo.init();
             world = ProjectStatesManager.loadState(-1);
         }
 
@@ -88,21 +90,26 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 undoFlag = true;
             }
         });
-        final Button test = ((Activity) context).findViewById(R.id.newProj);
-        test.setOnClickListener(new View.OnClickListener() {
+        final Button newProj = ((Activity) context).findViewById(R.id.newProj);
+        newProj.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 new AlertDialog.Builder(context)
                         .setTitle("Caution!")
                         .setMessage("Are you sure you want to start a new project? All unsaved changes will be lost.")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                // send user back to wall query
+                                Intent intent = new Intent(context, RoomSize.class);
+                                intent.putExtra("EXTRA_SESSION_ID", "renderer");
+                                context.startActivity(intent);
                             }
                         })
                         .setNegativeButton(android.R.string.no, null).show();
+
             }
         });
+
     }
+
 
     public void handleCreatingNewObject(float posX, float posY) {
         if (ObjectManager.isObjToBeCreated()) {
@@ -112,7 +119,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             currentObject = obj;
             ObjectManager.toggleMenu(obj, world, true);
             Undo.writeLog(obj, Undo.UndoAction.ADD);
-            MainMenu.unchooseChild();
+            ((Activity)context).runOnUiThread(new Runnable() {
+                public void run() {
+                    MainMenu.unchooseChild();
+                }
+            });
         }
     }
 
@@ -168,6 +179,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             cam.setPosition(camPosition);
         }
         cam.lookAt(new SimpleVector(0, 0, 0));
+    }
+
+    public void zoom(float factor) {
+        camDistant += factor;
+        if (camDistant < 8) {
+            camDistant = 8;
+        }
+        Camera cam = world.getCamera();
+        cam.setPosition(0, 0, 0);
+        cam.moveCamera(Camera.CAMERA_MOVEOUT, camDistant);
+
     }
 
     public void panObjectBy(float x, float y) {

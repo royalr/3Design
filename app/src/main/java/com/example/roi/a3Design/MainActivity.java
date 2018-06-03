@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
@@ -34,10 +35,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private float lastX, lastY, originX, originY;
     private MyRenderer.TapStatus status;
 
-    private ExpandableListAdapter listAdapter;
-    private ExpandableListView expListView;
-    private List<String> listDataHeader;
-    private HashMap<String, List<String>> listDataChild;
+    private ScaleGestureDetector mScaleGestureDetector;
+    private float mScaleFactor = 0.1f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_main);
+        ProjectStatesManager.regContext(this);
 
         TabLayout tabLayout = findViewById(R.id.sliding_tabs);
         ViewPager viewPager = findViewById(R.id.viewpager);
@@ -72,11 +72,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         renderer = new MyRenderer(this);
         mGLView.setRenderer(renderer);
         mGLView.setOnTouchListener(this);
-
+        mScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
         // should be initialized in the beginnig query
 //        ProjectStatesManager.init(true, -1);
-        ProjectStatesManager.init(true);
-        ProjectStatesManager.regContext(this);
 
     }
 
@@ -102,8 +100,17 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
 
-        switch (motionEvent.getAction()) {
+        if (motionEvent == null) {
+            return false;
+        }
+        mScaleGestureDetector.onTouchEvent(motionEvent);
+        if (mScaleGestureDetector.isInProgress()) {
+            return false;
+        }
+            switch (motionEvent.getAction()) {
+
             case MotionEvent.ACTION_DOWN:
+
                 originX = lastX = motionEvent.getX();
                 originY = lastY = motionEvent.getY();
 
@@ -154,5 +161,25 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 return true;
         }
         return false;
+    }
+
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+
+        @Override
+        public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+            mScaleFactor = 1;
+            mScaleFactor *= scaleGestureDetector.getScaleFactor();
+            Log.d("zoom", "scale factor: "+mScaleFactor);
+            Log.d("zoom", "scale: "+ scaleGestureDetector.getScaleFactor());
+
+            if (scaleGestureDetector.getScaleFactor() >= 1) {
+                mScaleFactor*=-1;
+            }
+//            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 10.0f));
+            renderer.zoom(mScaleFactor);
+
+            return true;
+
+        }
     }
 }

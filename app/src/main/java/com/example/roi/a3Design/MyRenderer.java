@@ -45,6 +45,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private static Object3D currentObject = null;
     private boolean deleteFlag = false;
     private boolean undoFlag = false;
+    private SimpleVector cameraPivot = new SimpleVector(0,0,0);
 
 
     public enum TapStatus {
@@ -64,8 +65,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         ObjectManager.init(context);
         Undo.init();
 
-        // to see the axis
-        // markAxis();
 
         if (ProjectStatesManager.getStatus()) {
             // get world with default values
@@ -107,6 +106,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
             }
         });
+        // to see the axis
+        markAxis();
 
     }
 
@@ -168,7 +169,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void panCameraBy(float dx, float dy) {
         // need to add the use of minHeight of camera - V
         Camera cam = world.getCamera();
-        cam.setPosition(0, 0, 0);
+        cam.setPosition(cameraPivot);
         cam.rotateCameraY(0.001f * dx);
         cam.rotateCameraX(0.001f * dy);
         cam.moveCamera(Camera.CAMERA_MOVEOUT, camDistant);
@@ -178,8 +179,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             camPosition.y = minHeight;
             cam.setPosition(camPosition);
         }
-        cam.lookAt(new SimpleVector(0, 0, 0));
+        cam.lookAt(new SimpleVector(cameraPivot));
     }
+    public void slideCamera(float dx, float dy) {
+        Camera cam = world.getCamera();
+        cam.lookAt(new SimpleVector(cameraPivot.x, cam.getPosition().y, cameraPivot.z));
+        SimpleVector newCameraPosition, oldCameraPosition = cam.getPosition();
+        cam.moveCamera(Camera.CAMERA_MOVEIN, -dy/50);
+        cam.moveCamera(Camera.CAMERA_MOVERIGHT, dx/50);
+        newCameraPosition = cam.getPosition();
+        cameraPivot.x -= oldCameraPosition.x - newCameraPosition.x;
+        cameraPivot.z -= oldCameraPosition.z - newCameraPosition.z;
+        cam.lookAt(new SimpleVector(cameraPivot));
+    }
+
 
     public void zoom(float factor) {
         camDistant += factor;
@@ -187,7 +200,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             camDistant = 8;
         }
         Camera cam = world.getCamera();
-        cam.setPosition(0, 0, 0);
+        cam.setPosition(cameraPivot);
         cam.moveCamera(Camera.CAMERA_MOVEOUT, camDistant);
 
     }

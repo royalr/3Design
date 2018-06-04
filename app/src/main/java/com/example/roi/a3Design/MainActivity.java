@@ -97,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         super.onStop();
     }
 
+    private boolean twoFingerFlag = false;
+
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
 
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         if (mScaleGestureDetector.isInProgress()) {
             return false;
         }
-            switch (motionEvent.getAction()) {
+        switch (motionEvent.getActionMasked() ) {
 
             case MotionEvent.ACTION_DOWN:
 
@@ -122,6 +124,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 });
                 return true;
 
+            case MotionEvent.ACTION_POINTER_DOWN:
+
+                twoFingerFlag = true;
+                return true;
             case MotionEvent.ACTION_MOVE:
                 final float dx = motionEvent.getX() - lastX;
                 final float dy = motionEvent.getY() - lastY;
@@ -129,9 +135,15 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 lastY = motionEvent.getY();
                 //Log.d("event", "Move event");
 
+
+
                 mGLView.queueEvent(new Runnable() {
                     @Override
                     public void run() {
+                        if (twoFingerFlag) {
+                           renderer.slideCamera(dx, dy);
+                           return;
+                        }
                         if (status == SAME_OBJECT) {
                             renderer.panObjectBy(lastX, lastY);
                             Undo.setRecordMode(false);
@@ -157,6 +169,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                         }
                     });
                 }
+                twoFingerFlag = false;
+
                 Undo.setRecordMode(true);
                 return true;
         }
@@ -169,11 +183,11 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
             mScaleFactor = 1;
             mScaleFactor *= scaleGestureDetector.getScaleFactor();
-            Log.d("zoom", "scale factor: "+mScaleFactor);
-            Log.d("zoom", "scale: "+ scaleGestureDetector.getScaleFactor());
+            Log.d("zoom", "scale factor: " + mScaleFactor);
+            Log.d("zoom", "scale: " + scaleGestureDetector.getScaleFactor());
 
             if (scaleGestureDetector.getScaleFactor() >= 1) {
-                mScaleFactor*=-1;
+                mScaleFactor *= -1;
             }
 //            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 10.0f));
             renderer.zoom(mScaleFactor);

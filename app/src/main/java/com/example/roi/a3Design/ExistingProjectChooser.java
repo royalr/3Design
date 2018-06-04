@@ -3,14 +3,12 @@ package com.example.roi.a3Design;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ExistingProjectChooser extends AppCompatActivity {
@@ -63,7 +61,8 @@ public class ExistingProjectChooser extends AppCompatActivity {
                         Button b = (Button) view;
                         String buttonText = b.getText().toString();
                         buttonText = buttonText.replaceAll("\\D", "");
-                        ProjectStatesManager.redLoadId(Integer.parseInt(buttonText));
+                        ProjectStatesManager.regLoadId(Integer.parseInt(buttonText));
+                        ProjectStatesManager.init(false);
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
                     }

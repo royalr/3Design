@@ -31,7 +31,7 @@ public class ProjectStatesManager {
         newProject = status;
     }
 
-    public static void redLoadId(int id) {
+    public static void regLoadId(int id) {
         loadId = id;
     }
 

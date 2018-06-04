@@ -33,6 +33,7 @@ public class RoomSize extends AppCompatActivity {
                             length = Float.parseFloat(roomHeightET.getText().toString());
                     WallManager.registerWalls(new Wall(width), new Wall(length));
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    ProjectStatesManager.init(true);
                     startActivity(intent);
                 }
             }

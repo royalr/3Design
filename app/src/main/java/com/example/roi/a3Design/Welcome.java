@@ -19,7 +19,6 @@ public class Welcome extends AppCompatActivity {
         Button newButton = findViewById(R.id.newButton);
         newButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                ProjectStatesManager.init(true);
                 Intent intent = new Intent(getApplicationContext(), RoomSize.class);
                 intent.putExtra("EXTRA_SESSION_ID", "welcome");
                 startActivity(intent);

@@ -98,7 +98,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
     private boolean twoFingerFlag = false;
+    @Override
+    public void onBackPressed() {
 
+    }
     @Override
     public boolean onTouch(View view, final MotionEvent motionEvent) {
 

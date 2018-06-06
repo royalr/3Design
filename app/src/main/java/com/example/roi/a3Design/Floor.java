@@ -17,6 +17,7 @@ public class Floor {
 //        floor.setTexture("floor");
         floor.setName("floor");
         floor.rotateX((float) Math.toRadians(90));
+        floor.translate(0,0.02f,0);
     }
 
     Object3D getFloorAsObj3D() {

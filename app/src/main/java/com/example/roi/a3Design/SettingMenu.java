@@ -154,6 +154,7 @@ public class SettingMenu extends Fragment {
                             listDataChild.get(listDataHeader.get(0)).set(child, "Saved Data " + (child + 1));
                             listDataChild.get(listDataHeader.get(1)).set(child, "Saved Data " + (child + 1));
                             MyRenderer.saveProject(childPosition);
+
                         } else {
                             // confirm action
                             new AlertDialog.Builder(getActivity())
@@ -166,6 +167,8 @@ public class SettingMenu extends Fragment {
                                     })
                                     .setNegativeButton(android.R.string.no, null).show();
                         }
+                        parent.collapseGroup(groupPosition);
+                        parent.collapseGroup(groupPosition+1);
                         break;
                     case 1: // load
                         if (!title.equals("Empty Slot " + (childPosition + 1))) {

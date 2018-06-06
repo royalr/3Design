@@ -23,7 +23,9 @@ import com.threed.jpct.RGBColor;
 import com.threed.jpct.SimpleVector;
 import com.threed.jpct.World;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.ListIterator;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -45,8 +47,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private static Object3D currentObject = null;
     private boolean deleteFlag = false;
     private boolean undoFlag = false;
-    private SimpleVector cameraPivot = new SimpleVector(0,0,0);
-
+    private SimpleVector cameraPivot = new SimpleVector(0, 0, 0);
+    private static ArrayList<Polyline> grid = new ArrayList<>();
+    private boolean polyLineFlag = false;
 
     public enum TapStatus {
         SAME_OBJECT, NO_OBJECT, NEW_OBJECT, VERTICAL_MENU
@@ -75,7 +78,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Undo.init();
             world = ProjectStatesManager.loadState(-1);
         }
-
         // delete & undo buttons handlers
         final Button delete = ((Activity) context).findViewById(R.id.delete);
         delete.setOnClickListener(new View.OnClickListener() {
@@ -112,6 +114,27 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
 
+    public void toggleGrid(boolean toggle) {
+        ListIterator<Polyline> litr = grid.listIterator();
+
+        if (polyLineFlag && toggle) {
+            return;
+        }
+        if(toggle){
+
+            while (litr.hasNext()) {
+                litr.next().setVisible(true);
+                polyLineFlag = true;
+            }
+        } else {
+            while (litr.hasNext()) {
+                litr.next().setVisible(false);
+                polyLineFlag = true;
+            }
+            polyLineFlag = false;
+
+        }
+    }
     public void handleCreatingNewObject(float posX, float posY) {
         if (ObjectManager.isObjToBeCreated()) {
             Object3D obj = ObjectManager.loadObject(ObjectManager.getObjToBeCreatedName());
@@ -120,7 +143,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             currentObject = obj;
             ObjectManager.toggleMenu(obj, world, true);
             Undo.writeLog(obj, Undo.UndoAction.ADD);
-            ((Activity)context).runOnUiThread(new Runnable() {
+            ((Activity) context).runOnUiThread(new Runnable() {
                 public void run() {
                     MainMenu.unchooseChild();
                 }
@@ -160,7 +183,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             undoFlag = false;
             Undo.readLog(world);
         }
-        fb.clear(new RGBColor(219, 219, 219));
+        fb.clear(new RGBColor(153, 204, 255));
         world.renderScene(fb);
         world.draw(fb);
         fb.display();
@@ -181,12 +204,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
         cam.lookAt(new SimpleVector(cameraPivot));
     }
+
     public void slideCamera(float dx, float dy) {
         Camera cam = world.getCamera();
         cam.lookAt(new SimpleVector(cameraPivot.x, cam.getPosition().y, cameraPivot.z));
         SimpleVector newCameraPosition, oldCameraPosition = cam.getPosition();
-        cam.moveCamera(Camera.CAMERA_MOVEIN, -dy/50);
-        cam.moveCamera(Camera.CAMERA_MOVERIGHT, dx/50);
+        cam.moveCamera(Camera.CAMERA_MOVEIN, -dy / 50);
+        cam.moveCamera(Camera.CAMERA_MOVERIGHT, dx / 50);
         newCameraPosition = cam.getPosition();
         cameraPivot.x -= oldCameraPosition.x - newCameraPosition.x;
         cameraPivot.z -= oldCameraPosition.z - newCameraPosition.z;
@@ -292,23 +316,40 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public static void loadProject(int slot) {
         world = ProjectStatesManager.loadState(slot);
-    }
+         markAxis();
 
-    private void markAxis() {
-        SimpleVector[] lineX = {new SimpleVector(0, 0, 0), new SimpleVector(50, 0, 0)};
-        SimpleVector[] lineY = {new SimpleVector(0, 0, 0), new SimpleVector(0, 50, 0)};
-        SimpleVector[] lineZ = {new SimpleVector(0, 0, 0), new SimpleVector(0, 0, 50)};
+        }
 
-        Polyline x = new Polyline(lineX, RGBColor.BLACK);
-        Polyline y = new Polyline(lineY, RGBColor.BLUE);
-        Polyline z = new Polyline(lineZ, RGBColor.GREEN);
+    private static void markAxis() {
+        RGBColor color = new RGBColor(0,0,0,50);
+        for (int i = -250; i < 250; i++) {
+            SimpleVector[] lineX = {new SimpleVector(-250, 0, i), new SimpleVector(250, 0, i)};
+            SimpleVector[] lineZ = {new SimpleVector(i, 0, -250), new SimpleVector(i, 0, 250)};
+            Polyline x = new Polyline(lineX, color);
+            Polyline z = new Polyline(lineZ, color);
+            grid.add(x);
+            grid.add(z);
+            x.setVisible(false);
+            z.setVisible(false);
+            world.addPolyline(x);
+            world.addPolyline(z);
+        }
 
-        x.setWidth(5);
-        y.setWidth(5);
-        z.setWidth(5);
-        world.addPolyline(x);
-        world.addPolyline(y);
-        world.addPolyline(z);
+
+//        SimpleVector[] lineX = {new SimpleVector(0, 0, 0), new SimpleVector(5000, 0, 0)};
+//        SimpleVector[] lineY = {new SimpleVector(0, 0, 0), new SimpleVector(0, 5000, 0)};
+//        SimpleVector[] lineZ = {new SimpleVector(0, 0, 0), new SimpleVector(0, 0, 5000)};
+//
+//        Polyline x = new Polyline(lineX, RGBColor.BLACK);
+//        Polyline y = new Polyline(lineY, RGBColor.BLUE);
+//        Polyline z = new Polyline(lineZ, RGBColor.GREEN);
+//
+//        x.setWidth(5);
+//        y.setWidth(5);
+//        z.setWidth(5);
+//        world.addPolyline(x);
+//        world.addPolyline(y);
+//        world.addPolyline(z);
 
     }
 

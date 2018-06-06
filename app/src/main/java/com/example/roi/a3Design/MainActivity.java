@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private boolean twoFingerFlag = false;
 
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
+    public boolean onTouch(View view, final MotionEvent motionEvent) {
 
         if (motionEvent == null) {
             return false;
@@ -127,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             case MotionEvent.ACTION_POINTER_DOWN:
 
                 twoFingerFlag = true;
+//                motionEvent.getPointerCoords(1, );
                 return true;
             case MotionEvent.ACTION_MOVE:
                 final float dx = motionEvent.getX() - lastX;
@@ -141,11 +142,19 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                     @Override
                     public void run() {
                         if (twoFingerFlag) {
+//
+//                            if (motionEvent.getPointerCount() >1) {
+//
+//                            }
+
+
+
                            renderer.slideCamera(dx, dy);
                            return;
                         }
                         if (status == SAME_OBJECT) {
                             renderer.panObjectBy(lastX, lastY);
+                            renderer.toggleGrid(true);
                             Undo.setRecordMode(false);
                         } else if (status == VERTICAL_MENU) {
                             renderer.panObjectVerticallyBy(dy);
@@ -158,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 return true;
 
             case MotionEvent.ACTION_UP:
-                if ((Math.abs(originX - motionEvent.getX()) < 0.3) && (Math.abs(originY - motionEvent.getY()) < 0.3)) {
+                if ((Math.abs(originX - motionEvent.getX()) < 5) && (Math.abs(originY - motionEvent.getY()) < 5)) {
                     mGLView.queueEvent(new Runnable() {
                         @Override
                         public void run() {
@@ -169,6 +178,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                         }
                     });
                 }
+                renderer.toggleGrid(false);
+
                 twoFingerFlag = false;
 
                 Undo.setRecordMode(true);

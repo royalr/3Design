@@ -32,6 +32,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="56dp"
         android:ems="10"
+        android:hint="meters"
         android:inputType="numberDecimal|number"
         app:layout_constraintStart_toEndOf="@+id/roomWidth"
         app:layout_constraintTop_toTopOf="parent" />
@@ -52,6 +53,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="56dp"
         android:ems="10"
+        android:hint="meters"
         android:inputType="numberDecimal|number"
         app:layout_constraintStart_toEndOf="@+id/roomLength"
         app:layout_constraintTop_toTopOf="parent" />

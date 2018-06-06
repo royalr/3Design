@@ -13,7 +13,7 @@ import com.threed.jpct.util.ExtendedPrimitives;
 public class Wall {
     private Object3D wall = null;
     private float length;
-    private final static float height = 2.6f, depth = 0.2f;
+    private final static float height = 2.6f, depth = 0.1f;
 
     Wall(float size) {
         length = size;

@@ -8,8 +8,10 @@ import android.widget.Toast;
 import com.threed.jpct.Camera;
 import com.threed.jpct.Light;
 import com.threed.jpct.Object3D;
+import com.threed.jpct.RGBColor;
 import com.threed.jpct.SimpleVector;
 import com.threed.jpct.World;
+import com.threed.jpct.util.ExtendedPrimitives;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -82,6 +84,7 @@ public class ProjectStatesManager {
 
         while (s.hasNext()) {
             String objName = s.next();
+            ObjectManager.setId(Integer.parseInt(objName.replaceAll("\\D", "")));
             Log.d("file2", objName);
             Object3D obj = ObjectManager.loadObject(objName.replaceAll("\\d", "")); // remove id numbers
             obj.setName(objName);
@@ -166,9 +169,17 @@ public class ProjectStatesManager {
         light.setIntensity(150, 150, 150);
         light.setPosition(new SimpleVector(30, -50, 20));
         Camera cam = newWorld.getCamera();
-        cam.moveCamera(Camera.CAMERA_MOVEOUT, 15);
+        cam.moveCamera(Camera.CAMERA_MOVEOUT, 11);
+        cam.moveCamera(Camera.CAMERA_MOVEUP, 10);
+        cam.lookAt(new SimpleVector(0,0,0));
         newWorld.addObjects(WallManager.getWallsObjects());
         newWorld.addObject(WallManager.getFloor().getFloorAsObj3D());
+        Object3D grass = ExtendedPrimitives.createBox(new SimpleVector(500,500,0.01f));
+        grass.setName("floor");
+        grass.translate(0,0.03f,0);
+        grass.setAdditionalColor(new RGBColor(51,102,0,255));
+        grass.rotateX((float) Math.toRadians(90));
+        newWorld.addObject(grass);
         return newWorld;
     }
 }

@@ -39,14 +39,19 @@ public class ObjectManager {
         context = c;
         id = 0;
     }
-
+    public static void setId(int num){
+        if(num < id){
+            return;
+        }
+        id = num;
+    }
     public static Object3D loadObject(String fileName) {
 
         AssetManager assetManager = context.getAssets();
         try {
             //InputStream mtl = assetManager.open("mtl/***.mtl");
             InputStream obj = assetManager.open("obj/" + fileName + ".obj");
-            Object3D[] model = Loader.loadOBJ(obj, null, 0.012f);
+            Object3D[] model = Loader.loadOBJ(obj, null, 0.01f);
             Object3D object = new Object3D(0);
             Object3D temp = null;
             for (int j = 0; j < model.length; j++) {
@@ -62,7 +67,7 @@ public class ObjectManager {
             if (f[3] - f[2] < 0.1) {
                 Log.i("Object Manager", "I'm a tiny object! Do something about me!");
             }
-//            object.translate(0, -f[3], -5);
+            object.translate(0, -f[3], 0);
             object.setCollisionMode(Object3D.COLLISION_CHECK_OTHERS);
             String objectName = fileName + Integer.toString(id);
             id++;

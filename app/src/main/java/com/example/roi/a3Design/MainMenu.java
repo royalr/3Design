@@ -191,7 +191,10 @@ public class MainMenu extends Fragment {
         category = "bedroom_";
         categoryName = "Bedroom";
         addChildDataForCategory(category, categoryName, listDataHeader, listDataChildImages, listDataChild);
-        category = "bedroom_";
+
+        category = "kitchen_";
+        categoryName = "Kitchen";
+        addChildDataForCategory(category, categoryName, listDataHeader, listDataChildImages, listDataChild);
 
         category = "general_";
         categoryName = "General";

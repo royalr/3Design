@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:paddingLeft="2dp"
-        android:text="Controls:\nZoom - Pinch\nMove - Two fingers\nSelect Object - Tap\nRotate Object - Red Ball\nVertical Height - Green Pyramid"
+        android:text="Controls:\nZoom - Pinch\nMove - Three fingers\nSelect Object - Tap\nRotate Object - Red Ball\nVertical Height - Green Pyramid"
         android:textAlignment="textStart"
         android:textSize="11sp"
         app:layout_constraintStart_toStartOf="parent"

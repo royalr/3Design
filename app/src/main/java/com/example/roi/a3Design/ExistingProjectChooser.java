@@ -61,7 +61,7 @@ public class ExistingProjectChooser extends AppCompatActivity {
                         Button b = (Button) view;
                         String buttonText = b.getText().toString();
                         buttonText = buttonText.replaceAll("\\D", "");
-                        ProjectStatesManager.regLoadId(Integer.parseInt(buttonText));
+                        ProjectStatesManager.regLoadId(Integer.parseInt(buttonText) -1);
                         ProjectStatesManager.init(false);
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);

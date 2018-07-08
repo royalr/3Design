@@ -39,7 +39,6 @@ import static com.threed.jpct.Interact2D.reproject2D3DWS;
 public class MyRenderer implements GLSurfaceView.Renderer {
     private FrameBuffer fb = null;
     private static World world = null;
-    private WallManager wm = null;
     private float camDistant = 15;
     private final float minHeight = -4;
     private Context context;
@@ -121,7 +120,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             return;
         }
         if(toggle){
-
             while (litr.hasNext()) {
                 litr.next().setVisible(true);
                 polyLineFlag = true;

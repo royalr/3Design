@@ -1,22 +1,15 @@
 package com.example.roi.a3Design;
 
-import android.app.Activity;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ExpandableListView;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import android.view.ViewConfiguration;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -32,11 +25,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private GLSurfaceView mGLView;
     private MyRenderer renderer = null;
 
-    private float lastX, lastY, originX, originY;
     private MyRenderer.TapStatus status;
-
-    private ScaleGestureDetector mScaleGestureDetector;
-    private float mScaleFactor = 0.1f;
+    private ViewConfiguration viewConfig;
+    private float threshold;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +35,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         this.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE); // (NEW)
         getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        viewConfig = ViewConfiguration.get(this);
+        threshold = viewConfig.getScaledTouchSlop();
 
         setContentView(R.layout.activity_main);
         ProjectStatesManager.regContext(this);
@@ -72,15 +66,14 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         renderer = new MyRenderer(this);
         mGLView.setRenderer(renderer);
         mGLView.setOnTouchListener(this);
-        mScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
-        // should be initialized in the beginnig query
-//        ProjectStatesManager.init(true, -1);
+
 
     }
 
 
     @Override
     protected void onPause() {
+        mGLView.setPreserveEGLContextOnPause(true);
         mGLView.onPause();
         super.onPause();
     }
@@ -97,66 +90,95 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         super.onStop();
     }
 
-    private boolean twoFingerFlag = false;
+    private boolean threeFingerDragGesture = false;
+
     @Override
     public void onBackPressed() {
 
     }
+
+    private float PrimeOriginX, PrimeOriginY, primePointerX, primePointerY, secondaryPointerX, secondaryPointerY;
+    private Float oldDistance = null, pointersDistance = null;
+
     @Override
     public boolean onTouch(View view, final MotionEvent motionEvent) {
 
-        if (motionEvent == null) {
-            return false;
-        }
-        mScaleGestureDetector.onTouchEvent(motionEvent);
-        if (mScaleGestureDetector.isInProgress()) {
-            return false;
-        }
-        switch (motionEvent.getActionMasked() ) {
+        switch (motionEvent.getActionMasked()) {
 
             case MotionEvent.ACTION_DOWN:
-
-                originX = lastX = motionEvent.getX();
-                originY = lastY = motionEvent.getY();
+                PrimeOriginX = primePointerX = motionEvent.getX();
+                PrimeOriginY = primePointerY = motionEvent.getY();
 
                 mGLView.queueEvent(new Runnable() {
                     @Override
                     public void run() {
-                        status = renderer.tapHandler(originX, originY);
+                        status = renderer.tapHandler(PrimeOriginX, PrimeOriginY);
                     }
                 });
                 return true;
 
             case MotionEvent.ACTION_POINTER_DOWN:
-
-                twoFingerFlag = true;
-//                motionEvent.getPointerCoords(1, );
+                // initiate the distance between two fingers
+                if (motionEvent.getPointerCount() == 2) {
+                    pointersDistance = distance(motionEvent, 0, 1);
+                }
+                return true;
+            case MotionEvent.ACTION_POINTER_UP:
                 return true;
             case MotionEvent.ACTION_MOVE:
-                final float dx = motionEvent.getX() - lastX;
-                final float dy = motionEvent.getY() - lastY;
-                lastX = motionEvent.getX();
-                lastY = motionEvent.getY();
-                //Log.d("event", "Move event");
+                final float dx = motionEvent.getX() - primePointerX;
+                final float dy = motionEvent.getY() - primePointerY;
+
+                if (motionEvent.getPointerCount() == 2 && pointersDistance != null) {
+
+                    if (oldDistance == null) {
+                        oldDistance = pointersDistance;
+                    }
+
+                    pointersDistance = distance(motionEvent, 0, 1);
+                    final float distanceDifferences = oldDistance - pointersDistance;
+
+                    final float diffPrimX = primePointerX - motionEvent.getX(0);
+                    final float diffPrimY = primePointerY - motionEvent.getY(0);
+                    final float diffSecX = secondaryPointerX - motionEvent.getX(1);
+                    final float diffSecY = secondaryPointerY - motionEvent.getY(1);
 
 
+                    if ((Math.abs(distanceDifferences) > threshold &&
+                            (diffPrimY * diffSecY) <= 0 && (diffPrimX * diffSecX) <= 0)) {
 
+                        mGLView.queueEvent(new Runnable() {
+                            @Override
+                            public void run() {
+                                renderer.zoom((distanceDifferences) / 40);
+                            }
+                        });
+                    }
+                    oldDistance = pointersDistance;
+
+                    primePointerX = motionEvent.getX();
+                    primePointerY = motionEvent.getY();
+                    secondaryPointerX = motionEvent.getX(1);
+                    secondaryPointerY = motionEvent.getY(1);
+                    return true;
+                } else if (motionEvent.getPointerCount() == 3) {
+                    threeFingerDragGesture = true;
+                }
+
+                primePointerX = motionEvent.getX();
+                primePointerY = motionEvent.getY();
                 mGLView.queueEvent(new Runnable() {
                     @Override
                     public void run() {
-                        if (twoFingerFlag) {
-//
-//                            if (motionEvent.getPointerCount() >1) {
-//
-//                            }
 
 
-
-                           renderer.slideCamera(dx, dy);
-                           return;
+                        if (threeFingerDragGesture) {
+                            renderer.slideCamera(dx, dy);
+                            threeFingerDragGesture = false;
+                            return;
                         }
                         if (status == SAME_OBJECT) {
-                            renderer.panObjectBy(lastX, lastY);
+                            renderer.panObjectBy(primePointerX, primePointerY);
                             renderer.toggleGrid(true);
                             Undo.setRecordMode(false);
                         } else if (status == VERTICAL_MENU) {
@@ -170,44 +192,43 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 return true;
 
             case MotionEvent.ACTION_UP:
-                if ((Math.abs(originX - motionEvent.getX()) < 5) && (Math.abs(originY - motionEvent.getY()) < 5)) {
+                oldDistance = null;
+                pointersDistance = null;
+
+                if ((Math.abs(PrimeOriginX - motionEvent.getX()) < threshold) && (Math.abs(PrimeOriginY - motionEvent.getY()) < threshold)) {
                     mGLView.queueEvent(new Runnable() {
                         @Override
                         public void run() {
                             renderer.handleObjectMenu(status);
                             if (status == NO_OBJECT) {
-                                renderer.handleCreatingNewObject(originX, originY);
+                                renderer.handleCreatingNewObject(PrimeOriginX, PrimeOriginY);
                             }
                         }
                     });
                 }
-                renderer.toggleGrid(false);
 
-                twoFingerFlag = false;
-
+                mGLView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        renderer.toggleGrid(false);
+                    }
+                });
                 Undo.setRecordMode(true);
                 return true;
         }
         return false;
     }
 
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+    private float distance(MotionEvent event, int first, int second) {
+        if (event.getPointerCount() >= 2) {
+            final float x = event.getX(first) - event.getX(second);
+            final float y = event.getY(first) - event.getY(second);
 
-        @Override
-        public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-            mScaleFactor = 1;
-            mScaleFactor *= scaleGestureDetector.getScaleFactor();
-            Log.d("zoom", "scale factor: " + mScaleFactor);
-            Log.d("zoom", "scale: " + scaleGestureDetector.getScaleFactor());
-
-            if (scaleGestureDetector.getScaleFactor() >= 1) {
-                mScaleFactor *= -1;
-            }
-//            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 10.0f));
-            renderer.zoom(mScaleFactor);
-
-            return true;
-
+            return (float) Math.sqrt(x * x + y * y);
+        } else {
+            return 0;
         }
     }
+
+
 }

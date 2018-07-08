@@ -18,7 +18,8 @@ public class RoomSize extends AppCompatActivity {
         getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_room_size);
-
+        EditText roomWidthET = findViewById(R.id.roomWidthValue);
+        roomWidthET.requestFocus();
         Button nextButton = findViewById(R.id.nextButton);
         nextButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {

@@ -238,8 +238,19 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     }
 
     public void panObjectVerticallyBy(float dy) {
+
+
         Undo.writeLog(currentObject, Undo.UndoAction.MOVEMENT);
         currentObject.translate(0, dy / 100, 0);
+        Log.d("upper", "y: " +currentObject.getTranslation().y);
+        Log.d("upper", "=========================");
+        float[] f = currentObject.getMesh().getBoundingBox();
+
+        if (currentObject.getTranslation().y +f[3]> 0 ){
+            Log.d("upper", "fixing");
+
+            currentObject.translate(0,-currentObject.getTranslation().y -f[3],0);
+        }
     }
 
 

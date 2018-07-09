@@ -20,6 +20,7 @@ public class Wall {
         wall = ExtendedPrimitives.createBox(new SimpleVector(length, height, depth));
 //        wall.setTexture("wall");
         wall.setName("wall");
+        wall.setTransparency(5);
     }
 
     Object3D getWall() {
